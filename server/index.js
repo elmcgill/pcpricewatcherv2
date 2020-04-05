@@ -1,31 +1,19 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import inputRoutes from './routes/inputRoutes';
-
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const inputRoutes = require('./routes/inputRoutes');
+const partsRoutes = require('./routes/partsRoutes');
 const app = express();
 
-const PORT = 5000;
+mongoose.connect('mongodb://localhost:27017/pcpartwatcher', {useNewUrlParser: true, useUnifiedTopology: true});
 
-//Connect to the database
-mongoose.Promise = global.Promise;
-//Probably want to move this to a .env if/when production comes
-mongoose.connect(`mongodb://localhost:27017/pcpartwatcher`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+app.use(cors());
 
-//bodyparser setup
-app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+//Routes
+app.use('/input', inputRoutes);
+app.use('/parts', partsRoutes);
 
-//Use a js file for endpoints
-inputRoutes(app);
-
-//Very basic get request endpoint
-app.get('/', (req, res) => {
-    res.send(`Default endpoint as an example on port ${PORT}`);
-});
-
-app.listen(PORT, ()=> console.log(`Server running on port ${PORT}!`));
+app.listen(5000, ()=> console.log('Server started on port 5000'));
